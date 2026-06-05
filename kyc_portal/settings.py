@@ -5,6 +5,19 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# If your logs directory is inside 'src', adjust the path accordingly
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+
+
+# Dynamically create the logs directory if it doesn't exist on Render
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-kyc-dev-secret-change-in-production-abc123xyz')
@@ -160,9 +173,10 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'audit_file': {
+            'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'audit.log',
             'formatter': 'audit',
+            'filename': os.path.join(LOGS_DIR, 'audit.log'),
         },
         'security_file': {
             'class': 'logging.FileHandler',
