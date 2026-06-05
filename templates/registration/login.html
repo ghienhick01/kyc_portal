@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In — VerifyID KYC Portal{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block auth_content %}
+<div class="auth-container">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <span>VerifyID</span>
+    </div>
+    <div class="auth-hero">
+      <h1 class="auth-headline">Secure<br><em>Identity</em><br>Verification</h1>
+      <p class="auth-sub">Enterprise-grade KYC compliance platform with real-time document verification and AI-assisted risk assessment.</p>
+    </div>
+    <div class="auth-features">
+      <div class="auth-feature">
+        <div class="feature-dot"></div>
+        <span>End-to-end encrypted document storage</span>
+      </div>
+      <div class="auth-feature">
+        <div class="feature-dot"></div>
+        <span>Multi-layer identity verification</span>
+      </div>
+      <div class="auth-feature">
+        <div class="feature-dot"></div>
+        <span>Complete compliance audit trail</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to your KYC portal account</p>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-error" role="alert">
+        {% for error in form.non_field_errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post" novalidate class="auth-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+          <span class="form-error">{{ form.username.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+          <div class="input-password-wrap">
+            {{ form.password }}
+            <button type="button" class="password-toggle" onclick="togglePassword(this)" tabindex="-1">
+              <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          {% if form.password.errors %}
+          <span class="form-error">{{ form.password.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Sign In Securely
+        </button>
+      </form>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <p class="auth-switch">Don't have an account? <a href="{% url 'register' %}">Create one →</a></p>
+
+      <div class="auth-security-note">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Account locked after 3 failed attempts. All access attempts are logged.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword(btn) {
+  const input = btn.previousElementSibling;
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+</script>
+{% endblock %}

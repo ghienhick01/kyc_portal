@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} KYC Application — VerifyID{% endblock %}
+{% block page_title %}{{ action }} Application{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page-header">
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <span>/</span>
+      {% if application %}<a href="{% url 'application_detail' application.public_id %}">KYC-{{ application.public_id|stringformat:"s"|slice:"0:8"|upper }}</a><span>/</span>{% endif %}
+      <span>{{ action }}</span>
+    </div>
+    <h2>{{ action }} KYC Application</h2>
+    <p class="page-subtitle">Please provide accurate personal information as it appears on your official documents.</p>
+  </div>
+
+  <div class="form-card">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="form-section">
+        <h4 class="form-section-title">Personal Details</h4>
+        <div class="form-group">
+          <label class="form-label">Full Legal Name *</label>
+          {{ form.full_name }}
+          {% if form.full_name.errors %}<span class="form-error">{{ form.full_name.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            {{ form.date_of_birth }}
+            {% if form.date_of_birth.errors %}<span class="form-error">{{ form.date_of_birth.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nationality</label>
+            {{ form.nationality }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4 class="form-section-title">Address Information</h4>
+        <div class="form-group">
+          <label class="form-label">Address Line 1</label>
+          {{ form.address_line1 }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address Line 2 <span class="optional">(optional)</span></label>
+          {{ form.address_line2 }}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            {{ form.city }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            {{ form.country }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Postal Code</label>
+            {{ form.postal_code }}
+          </div>
+        </div>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-error">
+        {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="form-actions">
+        <a href="{% url 'dashboard' %}" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+          Save Application
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

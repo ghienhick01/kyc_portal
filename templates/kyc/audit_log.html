@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Audit Log — VerifyID{% endblock %}
+{% block page_title %}Compliance Audit Log{% endblock %}
+{% block nav_audit %}active{% endblock %}
+
+{% block content %}
+<div class="audit-page">
+  <div class="page-header">
+    <h2>Audit Trail</h2>
+    <p class="page-subtitle">Immutable log of all user actions. Read-only — cannot be modified.</p>
+  </div>
+
+  <div class="filter-bar">
+    <form method="get" class="filter-form">
+      <select name="action" class="filter-select">
+        <option value="">All Actions</option>
+        {% for val, label in action_choices %}
+        <option value="{{ val }}" {% if action_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input type="text" name="user" value="{{ user_filter }}" placeholder="Filter by username..." class="filter-input">
+      <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+      {% if action_filter or user_filter %}<a href="{% url 'audit_log' %}" class="btn btn-sm btn-ghost">Clear</a>{% endif %}
+    </form>
+  </div>
+
+  <div class="table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Actor</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>Description</th>
+            <th>IP Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in page_obj %}
+          <tr class="table-row">
+            <td class="mono-text">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+            <td>{{ log.actor.username|default:"System" }}</td>
+            <td><span class="action-badge action-{{ log.action }}">{{ log.get_action_display }}</span></td>
+            <td><span class="target-type">{{ log.target_type }}</span>{% if log.target_id %} <code class="target-id">{{ log.target_id|slice:"0:8" }}</code>{% endif %}</td>
+            <td class="desc-col">{{ log.description }}</td>
+            <td class="mono-text">{{ log.ip_address|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="table-empty">No audit logs found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if user_filter %}&user={{ user_filter }}{% endif %}" class="page-btn">← Prev</a>
+      {% endif %}
+      <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if action_filter %}&action={{ action_filter }}{% endif %}{% if user_filter %}&user={{ user_filter }}{% endif %}" class="page-btn">Next →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

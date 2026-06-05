@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Account — VerifyID KYC Portal{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block auth_content %}
+<div class="auth-container">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <span>VerifyID</span>
+    </div>
+    <div class="auth-hero">
+      <h1 class="auth-headline">Start Your<br><em>Verification</em><br>Journey</h1>
+      <p class="auth-sub">Create your account to begin the KYC process. Your data is encrypted and handled in compliance with international standards.</p>
+    </div>
+    <div class="auth-steps">
+      <div class="step-item active"><div class="step-num">1</div><span>Create Account</span></div>
+      <div class="step-connector"></div>
+      <div class="step-item"><div class="step-num">2</div><span>Fill Application</span></div>
+      <div class="step-connector"></div>
+      <div class="step-item"><div class="step-num">3</div><span>Upload Docs</span></div>
+      <div class="step-connector"></div>
+      <div class="step-item"><div class="step-num">4</div><span>Get Verified</span></div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card auth-card-wide">
+      <div class="auth-card-header">
+        <h2>Create your account</h2>
+        <p>All fields marked with * are required</p>
+      </div>
+
+      <form method="post" novalidate class="auth-form">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" name="first_name" class="form-input" placeholder="First name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="last_name" class="form-input" placeholder="Last name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Username *</label>
+          {{ form.username }}
+          {% if form.username.errors %}<span class="form-error">{{ form.username.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          {{ form.email }}
+          {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            {{ form.phone_number }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Organization</label>
+            {{ form.organization }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password *</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}<span class="form-error">{{ form.password1.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password *</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}<span class="form-error">{{ form.password2.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-error">
+          {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-full">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Create Account
+        </button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Sign in →</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

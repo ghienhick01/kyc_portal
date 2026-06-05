@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Reviewer Dashboard — VerifyID{% endblock %}
+{% block page_title %}Review Center{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+<div class="reviewer-dashboard">
+
+  <!-- Stats row -->
+  <div class="stats-grid">
+    <div class="stat-card stat-total">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Total Applications</div>
+      <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg></div>
+    </div>
+    <div class="stat-card stat-pending">
+      <div class="stat-value">{{ stats.pending }}</div>
+      <div class="stat-label">Awaiting Review</div>
+      <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
+    </div>
+    <div class="stat-card stat-approved">
+      <div class="stat-value">{{ stats.approved }}</div>
+      <div class="stat-label">Approved</div>
+      <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    </div>
+    <div class="stat-card stat-rejected">
+      <div class="stat-value">{{ stats.rejected }}</div>
+      <div class="stat-label">Rejected</div>
+      <div class="stat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <form method="get" class="filter-form">
+      <div class="filter-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="search" value="{{ search }}" placeholder="Search by name or username..." class="filter-input">
+      </div>
+      <select name="status" class="filter-select">
+        <option value="">All Statuses</option>
+        {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="risk" class="filter-select">
+        <option value="">All Risk Levels</option>
+        {% for val, label in risk_choices %}
+        <option value="{{ val }}" {% if risk_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+      {% if search or status_filter or risk_filter %}
+      <a href="{% url 'dashboard' %}" class="btn btn-sm btn-ghost">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Applications table -->
+  <div class="table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Application ID</th>
+            <th>Applicant</th>
+            <th>Full Name</th>
+            <th>Status</th>
+            <th>Risk</th>
+            <th>Documents</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in page_obj %}
+          <tr class="table-row">
+            <td><code class="app-id-sm">KYC-{{ app.public_id|stringformat:"s"|slice:"0:8"|upper }}</code></td>
+            <td>{{ app.owner.username }}</td>
+            <td>{{ app.full_name|default:"—" }}</td>
+            <td><span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span></td>
+            <td><span class="risk-tag risk-{{ app.risk_level }}">{{ app.get_risk_level_display }}</span></td>
+            <td>
+              <span class="doc-count">{{ app.documents.count }} file{{ app.documents.count|pluralize }}</span>
+            </td>
+            <td class="date-col">{{ app.submitted_at|date:"M d, Y"|default:"—" }}</td>
+            <td>
+              <a href="{% url 'application_detail' app.public_id %}" class="btn btn-sm btn-outline">Review</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="table-empty">No applications found matching your filters.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}" class="page-btn">← Prev</a>
+      {% endif %}
+      <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}" class="page-btn">Next →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Recent audit log -->
+  <div class="recent-activity">
+    <h3 class="card-title">Recent Activity</h3>
+    <div class="activity-list">
+      {% for log in recent_logs %}
+      <div class="activity-item">
+        <div class="activity-actor">{{ log.actor.username|default:"System" }}</div>
+        <div class="activity-desc">{{ log.get_action_display }} {{ log.target_type }}</div>
+        <div class="activity-time">{{ log.timestamp|timesince }} ago</div>
+        <div class="activity-ip">{{ log.ip_address }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
